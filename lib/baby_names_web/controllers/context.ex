@@ -7,9 +7,8 @@ defmodule BabyNamesWeb.Context do
 
   def init(opts), do: opts
 
-  def get_device_key(_conn) do
-    # get_req_header(conn, "x-device-key")
-    ["sweet-heli"] # used fir test
+  def get_device_key(conn) do
+    get_req_header(conn, "x-device-key")
   end
 
   def call(conn, _) do
