@@ -8,6 +8,11 @@ defmodule BabyNames.Context.User do
   alias BabyNames.Repo
   alias BabyNames.Repo.{NameDescription, UserViewedNames, UserFavouriteNames}
 
+  def take_matched_names(_user_id) do
+    {:ok, []}
+  end
+
+  # mb use assoc instead of join
   def take_favourite_names(user_id) do
     nd_query =
       from(nd in NameDescription,
@@ -27,7 +32,7 @@ defmodule BabyNames.Context.User do
     unviewed_subquery = from(uvn in UserViewedNames, where: uvn.user_id == ^user_id)
 
     dynamic_query =
-      if gender == "mixed",
+      if gender == "MIXED",
         do: dynamic([nd, uvn], is_nil(uvn.name_id)),
         else: dynamic([nd, uvn], is_nil(uvn.name_id) and nd.gender == ^gender)
 
