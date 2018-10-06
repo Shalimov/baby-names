@@ -15,7 +15,14 @@ defmodule BabyNames.Repo.Collaboration do
   @doc false
   def changeset(collaboration, attrs) do
     collaboration
-    |> cast(attrs, [:owner_id, :holder_id])
-    |> validate_required([:owner_id, :holder_id])
+    |> cast(attrs, [:owner_id])
+    |> validate_required([:owner_id])
+  end
+
+  @doc false
+  def connect_changeset(collaboration, attrs) do
+    collaboration
+    |> cast(attrs, [:holder_id])
+    |> validate_required([:holder_id])
   end
 end

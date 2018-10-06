@@ -12,7 +12,7 @@ defmodule BabyNames.Repo.UserFavouriteNames do
   @doc false
   def changeset(user_favourite_names, attrs) do
     user_favourite_names
-    |> cast(attrs, [])
-    |> validate_required([])
+    |> cast(attrs, [:user_id, :name_id])
+    |> validate_required([:user_id, :name_id])
   end
 end

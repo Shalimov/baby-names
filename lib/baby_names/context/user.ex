@@ -4,9 +4,16 @@ defmodule BabyNames.Context.User do
   """
 
   import Ecto.Query
+  alias Ecto.Multi
 
   alias BabyNames.Repo
-  alias BabyNames.Repo.{NameDescription, UserViewedNames, UserFavouriteNames}
+
+  alias BabyNames.Repo.{
+    Collaboration,
+    NameDescription,
+    UserViewedNames,
+    UserFavouriteNames
+  }
 
   def take_matched_names(_user_id) do
     {:ok, []}
@@ -48,18 +55,62 @@ defmodule BabyNames.Context.User do
     {:ok, Repo.all(unviewed_query)}
   end
 
-  def remove_collaboration() do
+  def remove_collaboration(token) do
+    collaboration = Repo.get_by!(Collaboration, %{token: token})
+    Repo.delete(collaboration)
   end
 
-  def create_collaboration() do
+  def create_collaboration(owner_id) do
+    collaboration = Repo.get_by(Collaboration, %{owner_id: owner_id})
+
+    if collaboration do
+      {:ok, collaboration.token}
+    else
+      collaboration =
+        %Collaboration{}
+        |> Collaboration.changeset(%{owner_id: owner_id})
+        |> Repo.insert!(returning: [:token])
+
+      {:ok, collaboration.token}
+    end
   end
 
-  def remove_favourite_name() do
+  # Could be improved by using Repo.delete_all/2
+  def remove_favourite_name(user_id, name_id) do
+    fav_name = Repo.get_by!(UserFavouriteNames, %{user_id: user_id, name_id: name_id})
+    Repo.delete(fav_name)
   end
 
-  def marked_name_as_favourite() do
+  def marked_name_as_favourite(user_id, name_id) do
+    fav_name_changeset =
+      UserFavouriteNames.changeset(%UserFavouriteNames{}, %{
+        user_id: user_id,
+        name_id: name_id
+      })
+
+    viewed_name_changeset =
+      UserViewedNames.changeset(%UserFavouriteNames{}, %{
+        user_id: user_id,
+        name_id: name_id
+      })
+
+    result =
+      Multi.new()
+      |> Multi.insert(:fav_name, fav_name_changeset)
+      |> Multi.insert(:viewed_name, viewed_name_changeset)
+      |> Repo.transaction()
+
+    case result do
+      {:ok, _changes} -> {:ok, true}
+      error -> error
+    end
   end
 
-  def marked_name_as_viewed() do
+  def marked_name_as_viewed(user_id, name_id) do
+    %UserViewedNames{}
+    |> UserViewedNames.changeset(%{user_id: user_id, name_id: name_id})
+    |> Repo.insert!()
+
+    {:ok, true}
   end
 end
