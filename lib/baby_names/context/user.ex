@@ -112,10 +112,10 @@ defmodule BabyNames.Context.User do
   end
 
   def create_collaboration(owner_id) do
-    collaboration = get_collaboration(owner_id)
+    token = get_collaboration_token(owner_id)
 
-    if collaboration do
-      {:ok, collaboration.token}
+    if token do
+      {:ok, token}
     else
       collaboration =
         %Collaboration{}
@@ -136,11 +136,11 @@ defmodule BabyNames.Context.User do
     end
   end
 
-  def get_collaboration(user_id) do
+  def get_collaboration_token(user_id) do
     query =
       from(c in Collaboration,
         where: c.holder_id == ^user_id or c.owner_id == ^user_id,
-        select: c.id
+        select: c.token
       )
 
     Repo.one(query)

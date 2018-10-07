@@ -14,13 +14,8 @@ defmodule BabyNamesWeb.GraphQl.Resolvers.User.Types do
   end
 
   def collaboration_token(user, _params, _resolution) do
-    collaboration = User.get_collaboration(user.id)
-
-    if collaboration do
-      {:ok, collaboration.token}
-    else
-      {:ok, nil}
-    end
+    token = User.get_collaboration_token(user.id)
+    {:ok, token}
   end
 
   def bound?(user, _params, _resolution) do
