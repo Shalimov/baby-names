@@ -9,7 +9,7 @@ defmodule BabyNamesWeb.GraphQl.Resolvers.User.Mutation do
     Accounts.create_account(params)
   end
 
-  def create_collaboration(params, %{context: context}) do
+  def create_collaboration(_params, %{context: context}) do
     user = Map.get(context, :current_user)
     User.create_collaboration(user.id)
   end

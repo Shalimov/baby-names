@@ -148,7 +148,7 @@ defmodule BabyNames.Context.User do
 
         true ->
           collaboration
-          |> Repo.User.connect_changset(%{holder_id: holder_id})
+          |> Repo.Collaboration.connect_changeset(%{holder_id: holder_id})
           |> Repo.update()
       end
 
