@@ -35,13 +35,13 @@ defmodule BabyNamesWeb.GraphQl.Types.User.Mutation do
     field :remember_name, :boolean do
       arg(:id, non_null(:id))
 
-      resolve(&Resolvers.User.Mutation.mark_name_as_viewed/2)
+      resolve(&Resolvers.User.Mutation.remember_name/2)
     end
 
     field :forget_name, :boolean do
       arg(:id, non_null(:id))
 
-      resolve(&Resolvers.User.Mutation.mark_name_as_viewed/2)
+      resolve(&Resolvers.User.Mutation.forget_name/2)
     end
   end
 end

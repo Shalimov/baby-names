@@ -58,7 +58,11 @@ defmodule BabyNames.Context.User do
   # Could be improved by using Repo.delete_all/2
   def remove_favourite_name(user_id, name_id) do
     fav_name = Repo.get_by!(UserFavouriteNames, %{user_id: user_id, name_id: name_id})
-    Repo.delete(fav_name)
+
+    case Repo.delete(fav_name) do
+      {:ok, _} -> {:ok, true}
+      error -> error
+    end
   end
 
   def marked_name_as_favourite(user_id, name_id) do
@@ -69,7 +73,7 @@ defmodule BabyNames.Context.User do
       })
 
     viewed_name_changeset =
-      UserViewedNames.changeset(%UserFavouriteNames{}, %{
+      UserViewedNames.changeset(%UserViewedNames{}, %{
         user_id: user_id,
         name_id: name_id
       })
@@ -95,7 +99,7 @@ defmodule BabyNames.Context.User do
   end
 
   def create_collaboration(owner_id) do
-    collaboration = Repo.get_by(Collaboration, %{owner_id: owner_id})
+    collaboration = get_collaboration_token(owner_id)
 
     if collaboration do
       {:ok, collaboration.token}
@@ -117,6 +121,16 @@ defmodule BabyNames.Context.User do
     else
       {:error, :collaboration_removal_error}
     end
+  end
+
+  def get_collaboration_token(user_id) do
+    query =
+      from(c in Collaboration,
+        where: c.holder_id == ^user_id or c.owner_id == ^user_id,
+        select: c.id
+      )
+
+    Repo.one(query)
   end
 
   def is_user_connected(user_id) do
