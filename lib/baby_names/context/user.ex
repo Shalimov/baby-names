@@ -15,8 +15,21 @@ defmodule BabyNames.Context.User do
     UserFavouriteNames
   }
 
-  def take_matched_names(_user_id) do
-    {:ok, []}
+  def take_matched_names(user_id) do
+    match_query =
+      from(
+        c in Collaboration,
+        join: ouvn in UserFavouriteNames,
+        on: c.owner_id == ouvn.user_id,
+        join: hovn in UserFavouriteNames,
+        on: c.holder_id == hovn.user_id,
+        join: nd in NameDescription,
+        on: nd.id == ouvn.name_id and ouvn.name_id == hovn.name_id,
+        where: c.owner_id == ^user_id or c.holder_id == ^user_id,
+        select: nd
+      )
+
+    {:ok, Repo.all(match_query)}
   end
 
   # mb use assoc instead of join
@@ -99,7 +112,7 @@ defmodule BabyNames.Context.User do
   end
 
   def create_collaboration(owner_id) do
-    collaboration = get_collaboration_token(owner_id)
+    collaboration = get_collaboration(owner_id)
 
     if collaboration do
       {:ok, collaboration.token}
@@ -123,7 +136,7 @@ defmodule BabyNames.Context.User do
     end
   end
 
-  def get_collaboration_token(user_id) do
+  def get_collaboration(user_id) do
     query =
       from(c in Collaboration,
         where: c.holder_id == ^user_id or c.owner_id == ^user_id,
