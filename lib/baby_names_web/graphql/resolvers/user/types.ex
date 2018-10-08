@@ -3,7 +3,7 @@ defmodule BabyNamesWeb.GraphQl.Resolvers.User.Types do
   User type set of spectific resolvers
   """
 
-  alias BabyNames.Context.User
+  alias BabyNames.Context.{User, Collaboration}
 
   def favourite_names(user, _params, _resolution) do
     User.take_favourite_names(user.id)
@@ -14,12 +14,12 @@ defmodule BabyNamesWeb.GraphQl.Resolvers.User.Types do
   end
 
   def collaboration_token(user, _params, _resolution) do
-    token = User.get_collaboration_token(user.id)
+    token = Collaboration.get_collaboration_token(user.id)
     {:ok, token}
   end
 
   def bound?(user, _params, _resolution) do
-    bound? = User.is_user_connected(user.id)
+    bound? = Collaboration.is_user_connected(user.id)
     {:ok, bound?}
   end
 end

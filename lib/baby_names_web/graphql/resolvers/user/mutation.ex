@@ -3,7 +3,7 @@ defmodule BabyNamesWeb.GraphQl.Resolvers.User.Mutation do
   Mutation descriptions for user data type
   """
 
-  alias BabyNames.Context.{Accounts, User}
+  alias BabyNames.Context.{Accounts, User, Collaboration}
 
   def resolve_by(fun_name) do
     fn params, resolution ->
@@ -17,15 +17,15 @@ defmodule BabyNamesWeb.GraphQl.Resolvers.User.Mutation do
   end
 
   def create_collaboration(_params, _, user) do
-    User.create_collaboration(user.id)
+    Collaboration.create_collaboration(user.id)
   end
 
   def connect(%{token: token}, _, user) do
-    User.connect_collaboration(token, user.id)
+    Collaboration.connect_collaboration(token, user.id)
   end
 
   def disconnect(%{token: token}, _, user) do
-    User.remove_collaboration(token, user.id)
+    Collaboration.remove_collaboration(token, user.id)
   end
 
   def mark_name_as_viewed(%{id: name_id}, _, user) do
