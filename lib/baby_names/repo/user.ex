@@ -17,7 +17,7 @@ defmodule BabyNames.Repo.User do
   def changeset(user, attrs) do
     user
     |> cast(attrs, [:device_id])
+    |> unique_constraint(:device_id, message: "User has already been registred")
     |> validate_required([:device_id])
-    |> unique_constraint(:device_id, message: "Has already been registred")
   end
 end

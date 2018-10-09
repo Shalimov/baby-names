@@ -16,6 +16,7 @@ defmodule BabyNames.Repo.Collaboration do
   def changeset(collaboration, attrs) do
     collaboration
     |> cast(attrs, [:owner_id])
+    |> foreign_key_constraint(:owner_id, message: "owner doesn't exist")
     |> validate_required([:owner_id])
   end
 
@@ -23,6 +24,7 @@ defmodule BabyNames.Repo.Collaboration do
   def connect_changeset(collaboration, attrs) do
     collaboration
     |> cast(attrs, [:holder_id])
+    |> foreign_key_constraint(:holder_id, message: "holder doesn't exist")
     |> validate_required([:holder_id])
   end
 end

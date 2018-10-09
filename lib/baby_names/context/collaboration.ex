@@ -4,25 +4,34 @@ defmodule BabyNames.Context.Collaboration do
   alias BabyNames.Repo
   alias BabyNames.Repo.Collaboration
 
+  def create_collaboration(nil), do: {:error, :owner_required}
+
   def create_collaboration(owner_id) do
     token = get_collaboration_token(owner_id)
 
     if token do
       {:ok, token}
     else
-      collaboration =
+      collaboration_result =
         %Collaboration{}
         |> Collaboration.changeset(%{owner_id: owner_id})
-        |> Repo.insert!(returning: [:token])
+        |> Repo.insert(returning: [:token])
 
-      {:ok, collaboration.token}
+      case collaboration_result do
+        {:ok, %{token: token}} -> {:ok, token}
+        error -> error
+      end
     end
   end
 
   def remove_collaboration(user_id, token) do
-    collaboration = Repo.get_by!(Collaboration, %{token: token})
+    collaboration = Repo.get_by(Collaboration, %{token: token})
 
-    if collaboration.owner_id == user_id or collaboration.holder_id == user_id do
+    has_collaboration? =
+      collaboration != nil and
+        (collaboration.owner_id == user_id or collaboration.holder_id == user_id)
+
+    if has_collaboration? do
       Repo.delete(collaboration)
     else
       {:error, :collaboration_removal_error}
