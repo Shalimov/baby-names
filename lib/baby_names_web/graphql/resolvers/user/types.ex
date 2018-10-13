@@ -19,7 +19,7 @@ defmodule BabyNamesWeb.GraphQl.Resolvers.User.Types do
   end
 
   def bound?(user, _params, _resolution) do
-    bound? = Collaboration.is_user_connected(user.id)
+    bound? = Collaboration.user_connected?(user.id)
     {:ok, bound?}
   end
 end

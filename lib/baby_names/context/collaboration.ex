@@ -25,15 +25,11 @@ defmodule BabyNames.Context.Collaboration do
     end
   end
 
-  # TODO: Rewrite logic
-  def remove_collaboration(nil, _token), do: {:error, :user_not_found}
-  def remove_collaboration(_user, nil), do: {:error, :token_not_found}
-
   def remove_collaboration(user_id, token) do
-    collaboration = Repo.get_by(Collaboration, %{token: token})
+    collaboration = token && Repo.get_by(Collaboration, %{token: token})
 
     has_collaboration? =
-      collaboration != nil and
+      collaboration != nil and user_id != nil and
         (collaboration.owner_id == user_id or collaboration.holder_id == user_id)
 
     if has_collaboration? do
@@ -42,6 +38,8 @@ defmodule BabyNames.Context.Collaboration do
       {:error, :collaboration_removal_error}
     end
   end
+
+  def get_collaboration_token(nil), do: nil
 
   def get_collaboration_token(user_id) do
     query =
@@ -53,31 +51,34 @@ defmodule BabyNames.Context.Collaboration do
     Repo.one(query)
   end
 
-  def is_user_connected(user_id) do
+  def user_connected?(user_id) do
     query =
       from(c in Collaboration,
         where: c.holder_id == ^user_id or c.owner_id == ^user_id,
-        select: c.id
+        select: c.id,
+        limit: 1
       )
 
-    case Repo.all(query) do
-      [] -> true
-      _ -> false
-    end
+    Repo.one(query) != nil
   end
 
+  # In some cases holder can owe a collaboration already
+  # in this case this collaboration should be removed
   def connect_collaboration(token, holder_id) do
-    collaboration = Repo.get_by!(Collaboration, %{token: token})
+    collaboration = token && Repo.get_by(Collaboration, %{token: token})
 
     connection_result =
       cond do
+        is_nil(collaboration) ->
+          {:error, :not_found}
+
         collaboration.holder_id ->
-          {:error, :holder_already_exists}
+          {:error, :holder_exists}
 
         collaboration.owner_id == holder_id ->
           {:error, :holder_is_owner}
 
-        is_user_connected(holder_id) ->
+        connected_as_holder?(holder_id) ->
           {:error, :holder_bound}
 
         true ->
@@ -90,5 +91,18 @@ defmodule BabyNames.Context.Collaboration do
       {:ok, _} -> {:ok, true}
       error -> error
     end
+  end
+
+  defp connected_as_holder?(nil), do: false
+
+  defp connected_as_holder?(holder_id) do
+    query =
+      from(c in Collaboration,
+        where: c.holder_id == ^holder_id,
+        select: c.id,
+        limit: 1
+      )
+
+    Repo.one(query) != nil
   end
 end
