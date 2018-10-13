@@ -4,7 +4,8 @@ defmodule BabyNames.Context.Collaboration do
   alias BabyNames.Repo
   alias BabyNames.Repo.Collaboration
 
-  def create_collaboration(nil), do: {:error, :owner_required}
+  # TODO: Rewrite logic
+  def create_collaboration(nil), do: {:error, :owner_not_found}
 
   def create_collaboration(owner_id) do
     token = get_collaboration_token(owner_id)
@@ -23,6 +24,10 @@ defmodule BabyNames.Context.Collaboration do
       end
     end
   end
+
+  # TODO: Rewrite logic
+  def remove_collaboration(nil, _token), do: {:error, :user_not_found}
+  def remove_collaboration(_user, nil), do: {:error, :token_not_found}
 
   def remove_collaboration(user_id, token) do
     collaboration = Repo.get_by(Collaboration, %{token: token})
