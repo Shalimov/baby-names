@@ -2,6 +2,16 @@ defmodule BabyNames.Repo.NameDescription do
   use Ecto.Schema
   import Ecto.Changeset
 
+  @type t :: %{
+          id: integer(),
+          name: String.t(),
+          gender: String.t(),
+          description: String.t(),
+          origin: String.t(),
+          name_dates: String.t(),
+          short_forms: String.t()
+        }
+
   schema "name_descriptions" do
     field(:name, :string)
     field(:gender, :string)

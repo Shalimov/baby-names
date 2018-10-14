@@ -15,6 +15,7 @@ defmodule BabyNames.Context.User do
     UserFavouriteNames
   }
 
+  @spec take_matched_names(integer()) :: {atom(), list(NameDescription.t())}
   def take_matched_names(user_id) do
     match_query =
       from(
@@ -33,6 +34,7 @@ defmodule BabyNames.Context.User do
   end
 
   # mb use assoc instead of join
+  @spec take_favourite_names(integer()) :: {atom(), list(NameDescription.t())}
   def take_favourite_names(user_id) do
     nd_query =
       from(nd in NameDescription,
