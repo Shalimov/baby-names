@@ -162,4 +162,24 @@ defmodule BabyNames.Context.CollaborationTest do
     assert found_token_h == nil
     assert found_token_o == nil
   end
+
+  test "returns true if owner or holder is connected otherwise false" do
+    owner_device_id = Ecto.UUID.generate()
+    holder_device_id = Ecto.UUID.generate()
+    tester_device_id = Ecto.UUID.generate()
+
+    assert {:ok, owner} = Accounts.create_account(%{device_id: owner_device_id})
+    assert {:ok, holder} = Accounts.create_account(%{device_id: holder_device_id})
+    assert {:ok, tester} = Accounts.create_account(%{device_id: tester_device_id})
+    assert {:ok, token} = Collaboration.create_collaboration(owner.id)
+
+    assert {:ok, true} = Collaboration.connect_collaboration(token, holder.id)
+
+    assert Collaboration.user_connected?(owner.id) == true
+    assert Collaboration.user_connected?(holder.id) == true
+
+    assert Collaboration.user_connected?(tester.id) == false
+    assert Collaboration.user_connected?(0) == false
+    assert Collaboration.user_connected?(nil) == false
+  end
 end

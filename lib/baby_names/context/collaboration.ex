@@ -51,6 +51,8 @@ defmodule BabyNames.Context.Collaboration do
     Repo.one(query)
   end
 
+  def user_connected?(nil), do: false
+
   def user_connected?(user_id) do
     query =
       from(c in Collaboration,
