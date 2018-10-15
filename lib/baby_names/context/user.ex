@@ -106,10 +106,14 @@ defmodule BabyNames.Context.User do
   end
 
   def marked_name_as_viewed(user_id, name_id) do
-    %UserViewedNames{}
-    |> UserViewedNames.changeset(%{user_id: user_id, name_id: name_id})
-    |> Repo.insert!()
+    insertion_result =
+      %UserViewedNames{}
+      |> UserViewedNames.changeset(%{user_id: user_id, name_id: name_id})
+      |> Repo.insert()
 
-    {:ok, true}
+    case insertion_result do
+      {:ok, _} -> {:ok, true}
+      error -> error
+    end
   end
 end
