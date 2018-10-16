@@ -49,12 +49,12 @@ defmodule BabyNames.Context.User do
 
   def take_unviewed_names(user_id, params) do
     %{limit: limit, filter: filter} = params
-    %{gender: gender} = filter
+    gender = String.downcase(filter.gender)
 
     unviewed_subquery = from(uvn in UserViewedNames, where: uvn.user_id == ^user_id)
 
     dynamic_query =
-      if gender == "MIXED",
+      if gender == "mixed",
         do: dynamic([nd, uvn], is_nil(uvn.name_id)),
         else: dynamic([nd, uvn], is_nil(uvn.name_id) and nd.gender == ^gender)
 
@@ -71,12 +71,18 @@ defmodule BabyNames.Context.User do
   end
 
   # Could be improved by using Repo.delete_all/2
-  def remove_favourite_name(user_id, name_id) do
-    fav_name = Repo.get_by!(UserFavouriteNames, %{user_id: user_id, name_id: name_id})
+  def remove_favourite_name(user_id, name_id) when is_nil(user_id) or is_nil(name_id),
+    do: {:error, :not_found}
 
-    case Repo.delete(fav_name) do
-      {:ok, _} -> {:ok, true}
-      error -> error
+  def remove_favourite_name(user_id, name_id) do
+    delete_query =
+      from(ufn in UserFavouriteNames,
+        where: ufn.user_id == ^user_id and ufn.name_id == ^name_id
+      )
+
+    case Repo.delete_all(delete_query) do
+      {0, _} -> {:error, :not_found}
+      {n, _} when n > 0 -> {:ok, true}
     end
   end
 
