@@ -7,9 +7,11 @@ defmodule BabyNames.Repo.NameDescription do
           name: String.t(),
           gender: String.t(),
           description: String.t(),
-          origin: String.t(),
-          name_dates: String.t(),
-          short_forms: String.t()
+          origin: list(String.t()),
+          name_dates: list(String.t()),
+          short_forms: list(String.t()),
+          inserted_at: DateTime.t(),
+          updated_at: DateTime.t()
         }
 
   schema "name_descriptions" do

@@ -4,11 +4,18 @@ defmodule BabyNames.Repo.User do
 
   alias BabyNames.Repo.{NameDescription}
 
+  @type t :: %{
+          id: integer(),
+          device_id: String.t(),
+          inserted_at: DateTime.t(),
+          updated_at: DateTime.t()
+        }
+
   schema "users" do
     field(:device_id, :string)
 
-    many_to_many :favourite_names, NameDescription, join_through: "user_fav_names"
-    many_to_many :viewed_names, NameDescription, join_through: "user_viewed_names"
+    many_to_many(:favourite_names, NameDescription, join_through: "user_fav_names")
+    many_to_many(:viewed_names, NameDescription, join_through: "user_viewed_names")
 
     timestamps()
   end

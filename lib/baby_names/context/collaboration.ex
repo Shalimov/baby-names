@@ -1,12 +1,17 @@
 defmodule BabyNames.Context.Collaboration do
+  @moduledoc """
+  Collaboration module helps to create connection between two users
+  and provide indirect ability to share matched names
+  """
+
   import Ecto.Query
 
   alias BabyNames.Repo
   alias BabyNames.Repo.Collaboration
 
-  # TODO: Rewrite logic
   def create_collaboration(nil), do: {:error, :owner_not_found}
 
+  @spec create_collaboration(pos_integer()) :: {:ok, String.t()} | {:error, any()}
   def create_collaboration(owner_id) do
     token = get_collaboration_token(owner_id)
 
@@ -25,8 +30,9 @@ defmodule BabyNames.Context.Collaboration do
     end
   end
 
+  @spec remove_collaboration(pos_integer(), String.t()) :: {:ok, any()} | {:error, any()}
   def remove_collaboration(user_id, token) do
-    collaboration = token && Repo.get_by(Collaboration, %{token: token})
+    collaboration = token && Repo.get_by(Collaboration, token: token)
 
     has_collaboration? =
       collaboration != nil and user_id != nil and
@@ -67,7 +73,7 @@ defmodule BabyNames.Context.Collaboration do
   # In some cases holder can owe a collaboration already
   # in this case this collaboration should be removed
   def connect_collaboration(token, holder_id) do
-    collaboration = token && Repo.get_by(Collaboration, %{token: token})
+    collaboration = token && Repo.get_by(Collaboration, token: token)
 
     connection_result =
       cond do
