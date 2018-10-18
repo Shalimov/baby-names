@@ -68,7 +68,7 @@ defmodule BabyNames.Context.Collaboration do
   def user_connected?(user_id) do
     query =
       from(c in Collaboration,
-        where: c.holder_id == ^user_id or c.owner_id == ^user_id,
+        where: (c.holder_id == ^user_id or c.owner_id == ^user_id) and not is_nil(c.holder_id),
         select: c.id,
         limit: 1
       )
