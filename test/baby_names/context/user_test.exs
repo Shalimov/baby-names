@@ -25,7 +25,7 @@ defmodule BabyNames.Context.UserTest do
 
     refute is_nil(saved_record)
 
-    assert {:error, _, _, _} = User.marked_name_as_favourite(user.id, name.id)
+    assert {:error, _} = User.marked_name_as_favourite(user.id, name.id)
 
     assert Repo.aggregate(from(ufn in UserFavouriteNames), :count, :id) == 1
   end
@@ -49,14 +49,14 @@ defmodule BabyNames.Context.UserTest do
     user = context[:current_user]
     name = context[:name_desc]
 
-    assert {:error, _, _, _} = User.marked_name_as_favourite(user.id, nil)
-    assert {:error, _, _, _} = User.marked_name_as_favourite(user.id, 0)
+    assert {:error, _} = User.marked_name_as_favourite(user.id, nil)
+    assert {:error, _} = User.marked_name_as_favourite(user.id, 0)
 
-    assert {:error, _, _, _} = User.marked_name_as_favourite(nil, name.id)
-    assert {:error, _, _, _} = User.marked_name_as_favourite(0, name.id)
+    assert {:error, _} = User.marked_name_as_favourite(nil, name.id)
+    assert {:error, _} = User.marked_name_as_favourite(0, name.id)
 
-    assert {:error, _, _, _} = User.marked_name_as_favourite(nil, nil)
-    assert {:error, _, _, _} = User.marked_name_as_favourite(0, 0)
+    assert {:error, _} = User.marked_name_as_favourite(nil, nil)
+    assert {:error, _} = User.marked_name_as_favourite(0, 0)
   end
 
   test "should mark name only as viewed", context do

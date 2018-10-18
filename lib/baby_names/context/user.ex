@@ -15,7 +15,8 @@ defmodule BabyNames.Context.User do
     UserFavouriteNames
   }
 
-  @spec take_matched_names(integer()) :: {atom(), list(NameDescription.t())}
+  @doc "Returns names matches by holder or owner of collaboration"
+  @spec take_matched_names(integer()) :: {:ok, list(NameDescription.t())}
   def take_matched_names(user_id) do
     match_query =
       from(
@@ -34,7 +35,8 @@ defmodule BabyNames.Context.User do
   end
 
   # mb use assoc instead of join
-  @spec take_favourite_names(integer()) :: {atom(), list(NameDescription.t())}
+  @doc "Returns user specific favourtie names"
+  @spec take_favourite_names(integer()) :: {:ok, list(NameDescription.t())}
   def take_favourite_names(user_id) do
     nd_query =
       from(nd in NameDescription,
@@ -47,6 +49,9 @@ defmodule BabyNames.Context.User do
     {:ok, Repo.all(nd_query)}
   end
 
+  @doc "Returns uniq name set for user based on already viewed names"
+  @type filter :: %{limit: non_neg_integer(), filter: %{gender: String.t()}}
+  @spec take_unviewed_names(pos_integer(), filter()) :: {:ok, list(NameDescription.t())}
   def take_unviewed_names(user_id, params) do
     %{limit: limit, filter: filter} = params
     gender = String.downcase(filter.gender)
@@ -70,7 +75,8 @@ defmodule BabyNames.Context.User do
     {:ok, Repo.all(unviewed_query)}
   end
 
-  # Could be improved by using Repo.delete_all/2
+  @doc "Removes user's favourite name"
+  @spec remove_favourite_name(pos_integer(), pos_integer()) :: {:ok, true} | {:error, :not_found}
   def remove_favourite_name(user_id, name_id) when is_nil(user_id) or is_nil(name_id),
     do: {:error, :not_found}
 
@@ -86,6 +92,8 @@ defmodule BabyNames.Context.User do
     end
   end
 
+  @doc "Saves name as user's favourite"
+  @spec marked_name_as_favourite(pos_integer(), pos_integer()) :: {:ok, true} | {:error, any()}
   def marked_name_as_favourite(user_id, name_id) do
     fav_name_changeset =
       UserFavouriteNames.changeset(%UserFavouriteNames{}, %{
@@ -107,10 +115,12 @@ defmodule BabyNames.Context.User do
 
     case result do
       {:ok, _changes} -> {:ok, true}
-      error -> error
+      {:error, _, changeset, _} -> {:error, changeset}
     end
   end
 
+  @doc "Marks name is already viewed by user"
+  @spec marked_name_as_viewed(pos_integer(), pos_integer()) :: {:ok, true} | {:error, any()}
   def marked_name_as_viewed(user_id, name_id) do
     insertion_result =
       %UserViewedNames{}

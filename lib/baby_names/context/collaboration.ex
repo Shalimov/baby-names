@@ -11,6 +11,7 @@ defmodule BabyNames.Context.Collaboration do
 
   def create_collaboration(nil), do: {:error, :owner_not_found}
 
+  @doc "Creates collaboration record for owner with generated V4 token"
   @spec create_collaboration(pos_integer()) :: {:ok, String.t()} | {:error, any()}
   def create_collaboration(owner_id) do
     token = get_collaboration_token(owner_id)
@@ -30,6 +31,7 @@ defmodule BabyNames.Context.Collaboration do
     end
   end
 
+  @doc "Removes collaboration completely for user if user is owner or holder"
   @spec remove_collaboration(pos_integer(), String.t()) :: {:ok, any()} | {:error, any()}
   def remove_collaboration(user_id, token) do
     collaboration = token && Repo.get_by(Collaboration, token: token)
@@ -47,6 +49,8 @@ defmodule BabyNames.Context.Collaboration do
 
   def get_collaboration_token(nil), do: nil
 
+  @doc "Returns collaboration token if user is owner or holder of collaboration"
+  @spec get_collaboration_token(pos_integer()) :: String.t() | nil
   def get_collaboration_token(user_id) do
     query =
       from(c in Collaboration,
@@ -59,6 +63,8 @@ defmodule BabyNames.Context.Collaboration do
 
   def user_connected?(nil), do: false
 
+  @doc "Returns information whether user is connected to other user via collaboration"
+  @spec user_connected?(pos_integer()) :: boolean()
   def user_connected?(user_id) do
     query =
       from(c in Collaboration,
@@ -72,6 +78,8 @@ defmodule BabyNames.Context.Collaboration do
 
   # In some cases holder can owe a collaboration already
   # in this case this collaboration should be removed
+  @doc "Connects holder with owner in boundaries of collaboration"
+  @spec connect_collaboration(String.t(), pos_integer()) :: {:ok, true} | {:error, any()}
   def connect_collaboration(token, holder_id) do
     collaboration = token && Repo.get_by(Collaboration, token: token)
 
@@ -103,6 +111,7 @@ defmodule BabyNames.Context.Collaboration do
 
   defp connected_as_holder?(nil), do: false
 
+  @spec connected_as_holder?(pos_integer()) :: boolean()
   defp connected_as_holder?(holder_id) do
     query =
       from(c in Collaboration,
