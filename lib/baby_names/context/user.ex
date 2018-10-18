@@ -132,4 +132,18 @@ defmodule BabyNames.Context.User do
       error -> error
     end
   end
+
+  @doc "Resets unviewed names for particular user"
+  @spec reset_unviewed_names(pos_integer()) :: {:ok, true} | {:error, any()}
+  def reset_unviewed_names(user_id) do
+    remove_query =
+      from(uvn in UserViewedNames,
+        where: uvn.user_id == ^user_id
+      )
+
+    case Repo.delete_all(remove_query) do
+      {n, _} when is_number(n) -> {:ok, true}
+      error -> {:error, error}
+    end
+  end
 end

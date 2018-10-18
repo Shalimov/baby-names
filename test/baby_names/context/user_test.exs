@@ -208,4 +208,23 @@ defmodule BabyNames.Context.UserTest do
     assert owner_matches == holder_matches
     assert length(owner_matches) == 1
   end
+
+  test "remove all viewed names", context do
+    user = context[:current_user]
+
+    {:ok, unviewed_name} =
+      User.take_unviewed_names(user.id, %{limit: 10, filter: %{gender: "mixed"}})
+
+    for nd <- unviewed_name do
+      {:ok, true} = User.marked_name_as_viewed(user.id, nd.id)
+    end
+
+    uvn_query = from(uvn in UserViewedNames, where: uvn.user_id == ^user.id)
+
+    assert Repo.aggregate(uvn_query, :count, :id) == 10
+
+    assert {:ok, true} = User.reset_unviewed_names(user.id)
+
+    assert Repo.aggregate(uvn_query, :count, :id) == 0
+  end
 end
