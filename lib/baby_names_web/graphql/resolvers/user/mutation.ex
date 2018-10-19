@@ -39,4 +39,8 @@ defmodule BabyNamesWeb.GraphQl.Resolvers.User.Mutation do
   def forget_name(%{id: name_id}, _, user) do
     User.remove_favourite_name(user.id, name_id)
   end
+
+  def forget_viewed_names(_, _, user) do
+    User.reset_unviewed_names(user.id)
+  end
 end

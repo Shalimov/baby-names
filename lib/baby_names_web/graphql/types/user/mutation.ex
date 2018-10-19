@@ -43,5 +43,9 @@ defmodule BabyNamesWeb.GraphQl.Types.User.Mutation do
 
       resolve(User.Mutation.resolve_by(:forget_name))
     end
+
+    field :forget_viewed_names, :boolean do
+      resolve(User.Mutation.resolve_by(:forget_viewed_names))
+    end
   end
 end
