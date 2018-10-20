@@ -209,22 +209,35 @@ defmodule BabyNames.Context.UserTest do
     assert length(owner_matches) == 1
   end
 
-  test "remove all viewed names", context do
+  test "remove all viewed names of specific user", context do
+    holder_guid = Ecto.UUID.generate()
+
     user = context[:current_user]
 
-    {:ok, unviewed_name} =
-      User.take_unviewed_names(user.id, %{limit: 10, filter: %{gender: "mixed"}})
+    {:ok, holder} = Accounts.create_account(%{device_id: holder_guid})
 
-    for nd <- unviewed_name do
-      {:ok, true} = User.marked_name_as_viewed(user.id, nd.id)
-    end
+    {:ok, unviewed_name} =
+      User.take_unviewed_names(user.id, %{limit: 10, filter: %{gender: "female"}})
 
     uvn_query = from(uvn in UserViewedNames, where: uvn.user_id == ^user.id)
+    uvn_holder_query = from(uvn in UserViewedNames, where: uvn.user_id == ^holder.id)
+
+    [nm1 | [nm2 | rest_unviewed_name]] = unviewed_name
+
+    assert {:ok, true} = User.marked_name_as_favourite(user.id, nm1.id)
+    assert {:ok, true} = User.marked_name_as_favourite(user.id, nm2.id)
+
+    for nd <- rest_unviewed_name do
+      {:ok, true} = User.marked_name_as_viewed(user.id, nd.id)
+      {:ok, true} = User.marked_name_as_viewed(holder.id, nd.id)
+    end
 
     assert Repo.aggregate(uvn_query, :count, :id) == 10
+    assert Repo.aggregate(uvn_holder_query, :count, :id) == 8
 
     assert {:ok, true} = User.reset_unviewed_names(user.id)
 
-    assert Repo.aggregate(uvn_query, :count, :id) == 0
+    assert Repo.aggregate(uvn_holder_query, :count, :id) == 8
+    assert Repo.aggregate(uvn_query, :count, :id) == 2
   end
 end

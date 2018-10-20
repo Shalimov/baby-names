@@ -133,12 +133,22 @@ defmodule BabyNames.Context.User do
     end
   end
 
-  @doc "Resets unviewed names for particular user"
+  @doc "Resets unviewed names for particular user, except favourites"
   @spec reset_unviewed_names(pos_integer()) :: {:ok, true} | {:error, any()}
   def reset_unviewed_names(user_id) do
+    viewed_names =
+      from(uvn in UserViewedNames,
+        left_join: ufn in UserFavouriteNames,
+        on: uvn.name_id == ufn.name_id and uvn.user_id == ufn.user_id,
+        where: uvn.user_id == ^user_id and is_nil(ufn.name_id),
+        select: uvn.id
+      )
+
+    remove_ids = Repo.all(viewed_names)
+
     remove_query =
       from(uvn in UserViewedNames,
-        where: uvn.user_id == ^user_id
+        where: uvn.id in ^remove_ids
       )
 
     case Repo.delete_all(remove_query) do
