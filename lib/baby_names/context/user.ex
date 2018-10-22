@@ -15,9 +15,13 @@ defmodule BabyNames.Context.User do
     UserFavouriteNames
   }
 
+  @typep take_params :: %{limit: non_neg_integer(), offset: non_neg_integer()}
+
   @doc "Returns names matches by holder or owner of collaboration"
-  @spec take_matched_names(integer()) :: {:ok, list(NameDescription.t())}
-  def take_matched_names(user_id) do
+  @spec take_matched_names(pos_integer(), take_params()) :: {:ok, list(NameDescription.t())}
+  def take_matched_names(user_id, params) do
+    %{limit: limit, offset: offset} = params
+
     match_query =
       from(
         c in Collaboration,
@@ -28,7 +32,9 @@ defmodule BabyNames.Context.User do
         join: nd in NameDescription,
         on: nd.id == ouvn.name_id and ouvn.name_id == hovn.name_id,
         where: c.owner_id == ^user_id or c.holder_id == ^user_id,
-        select: nd
+        select: nd,
+        limit: ^limit,
+        offset: ^offset
       )
 
     {:ok, Repo.all(match_query)}
@@ -36,21 +42,25 @@ defmodule BabyNames.Context.User do
 
   # mb use assoc instead of join
   @doc "Returns user specific favourtie names"
-  @spec take_favourite_names(integer()) :: {:ok, list(NameDescription.t())}
-  def take_favourite_names(user_id) do
+  @spec take_favourite_names(pos_integer(), take_params()) :: {:ok, list(NameDescription.t())}
+  def take_favourite_names(user_id, params) do
+    %{limit: limit, offset: offset} = params
+
     nd_query =
       from(nd in NameDescription,
         inner_join: uvn in UserFavouriteNames,
         on: nd.id == uvn.name_id,
         where: uvn.user_id == ^user_id,
-        select: nd
+        select: nd,
+        limit: ^limit,
+        offset: ^offset
       )
 
     {:ok, Repo.all(nd_query)}
   end
 
   @doc "Returns uniq name set for user based on already viewed names"
-  @type filter :: %{limit: non_neg_integer(), filter: %{gender: String.t()}}
+  @typep filter :: %{limit: non_neg_integer(), filter: %{gender: String.t()}}
   @spec take_unviewed_names(pos_integer(), filter()) :: {:ok, list(NameDescription.t())}
   def take_unviewed_names(user_id, params) do
     %{limit: limit, filter: filter} = params

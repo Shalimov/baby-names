@@ -172,41 +172,71 @@ defmodule BabyNames.Context.UserTest do
     assert Enum.all?(male_names_set, &(&1.gender == "male")) == true
   end
 
+  # TODO: Split into two+ tests (check params handling)
   test "returns user's fav names", context do
     user = context[:current_user]
-    name = context[:name_desc]
+    # name = context[:name_desc]
 
-    assert {:ok, fav_names} = User.take_favourite_names(user.id)
+    name_desc_ids = Repo.all(from(nd in NameDescription, select: nd.id, limit: 2))
+    assert length(name_desc_ids) == 2
+
+    assert {:ok, fav_names} = User.take_favourite_names(user.id, %{limit: 10, offset: 0})
     assert length(fav_names) == 0
 
-    assert {:ok, true} = User.marked_name_as_favourite(user.id, name.id)
-    assert {:ok, fav_names} = User.take_favourite_names(user.id)
+    for ndid <- name_desc_ids do
+      assert {:ok, true} = User.marked_name_as_favourite(user.id, ndid)
+    end
+
+    assert {:ok, fav_names} = User.take_favourite_names(user.id, %{limit: 10, offset: 0})
+    assert length(fav_names) == 2
+
+    assert {:ok, fav_names} = User.take_favourite_names(user.id, %{limit: 1, offset: 0})
     assert length(fav_names) == 1
 
-    assert {:ok, true} = User.remove_favourite_name(user.id, name.id)
-    assert {:ok, fav_names} = User.take_favourite_names(user.id)
+    assert {:ok, fav_names} = User.take_favourite_names(user.id, %{limit: 10, offset: 2})
+    assert length(fav_names) == 0
+
+    for ndid <- name_desc_ids do
+      assert {:ok, true} = User.remove_favourite_name(user.id, ndid)
+    end
+
+    assert {:ok, fav_names} = User.take_favourite_names(user.id, %{limit: 1, offset: 0})
     assert length(fav_names) == 0
   end
 
+  # TODO: Split into two+ tests (check params handling)
   test "returns matches between connected users", context do
     holder_guid = Ecto.UUID.generate()
 
     owner = context[:current_user]
-    name_desc = context[:name_desc]
 
     {:ok, holder} = Accounts.create_account(%{device_id: holder_guid})
 
     assert {:ok, token} = Collaboration.create_collaboration(owner.id)
     assert {:ok, true} = Collaboration.connect_collaboration(token, holder.id)
 
-    assert {:ok, true} = User.marked_name_as_favourite(owner.id, name_desc.id)
-    assert {:ok, true} = User.marked_name_as_favourite(holder.id, name_desc.id)
+    name_desc_ids = Repo.all(from(nd in NameDescription, select: nd.id, limit: 2))
+    assert length(name_desc_ids) == 2
 
-    assert {:ok, owner_matches} = User.take_matched_names(owner.id)
-    assert {:ok, holder_matches} = User.take_matched_names(holder.id)
+    for nid <- name_desc_ids do
+      assert {:ok, true} = User.marked_name_as_favourite(owner.id, nid)
+      assert {:ok, true} = User.marked_name_as_favourite(holder.id, nid)
+    end
+
+    assert {:ok, owner_matches} = User.take_matched_names(owner.id, %{limit: 10, offset: 0})
+    assert {:ok, holder_matches} = User.take_matched_names(holder.id, %{limit: 10, offset: 0})
 
     assert owner_matches == holder_matches
-    assert length(owner_matches) == 1
+    assert length(owner_matches) == 2
+
+    assert {:ok, holder_matches} = User.take_matched_names(holder.id, %{limit: 1, offset: 0})
+    assert length(holder_matches) == 1
+
+    assert {:ok, holder_matches} = User.take_matched_names(holder.id, %{limit: 10, offset: 1})
+    assert length(holder_matches) == 1
+
+    assert {:ok, test_matches} = User.take_matched_names(holder.id, %{limit: 10, offset: 2})
+    assert length(test_matches) == 0
   end
 
   test "remove all viewed names of specific user", context do

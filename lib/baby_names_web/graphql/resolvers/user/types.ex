@@ -5,12 +5,12 @@ defmodule BabyNamesWeb.GraphQl.Resolvers.User.Types do
 
   alias BabyNames.Context.{User, Collaboration}
 
-  def favourite_names(user, _params, _resolution) do
-    User.take_favourite_names(user.id)
+  def favourite_names(user, %{input: params}, _resolution) do
+    User.take_favourite_names(user.id, params)
   end
 
-  def matched_names(user, _params, _resolution) do
-    User.take_matched_names(user.id)
+  def matched_names(user, %{input: params}, _resolution) do
+    User.take_matched_names(user.id, params)
   end
 
   def collaboration_token(user, _params, _resolution) do
