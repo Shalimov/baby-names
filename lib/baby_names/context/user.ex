@@ -32,12 +32,15 @@ defmodule BabyNames.Context.User do
         join: nd in NameDescription,
         on: nd.id == ouvn.name_id and ouvn.name_id == hovn.name_id,
         where: c.owner_id == ^user_id or c.holder_id == ^user_id,
-        select: nd,
-        limit: ^limit,
-        offset: ^offset
+        select: nd
       )
 
-    {:ok, Repo.all(match_query)}
+    search_query =
+      if limit == -1 and offset == -1,
+        do: from(item in match_query),
+        else: from(item in match_query, limit: ^limit, offset: ^offset)
+
+    {:ok, Repo.all(search_query)}
   end
 
   # mb use assoc instead of join
@@ -51,12 +54,15 @@ defmodule BabyNames.Context.User do
         inner_join: uvn in UserFavouriteNames,
         on: nd.id == uvn.name_id,
         where: uvn.user_id == ^user_id,
-        select: nd,
-        limit: ^limit,
-        offset: ^offset
+        select: nd
       )
 
-    {:ok, Repo.all(nd_query)}
+    search_query =
+      if limit == -1 and offset == -1,
+        do: from(nd in nd_query),
+        else: from(nd in nd_query, limit: ^limit, offset: ^offset)
+
+    {:ok, Repo.all(search_query)}
   end
 
   @doc "Returns uniq name set for user based on already viewed names"

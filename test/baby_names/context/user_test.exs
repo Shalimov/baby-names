@@ -196,6 +196,10 @@ defmodule BabyNames.Context.UserTest do
     assert {:ok, fav_names} = User.take_favourite_names(user.id, %{limit: 10, offset: 2})
     assert length(fav_names) == 0
 
+    # returns all items if offset and limit == -1
+    assert {:ok, fav_names} = User.take_favourite_names(user.id, %{limit: -1, offset: -1})
+    assert length(fav_names) == 2
+
     for ndid <- name_desc_ids do
       assert {:ok, true} = User.remove_favourite_name(user.id, ndid)
     end
@@ -237,6 +241,10 @@ defmodule BabyNames.Context.UserTest do
 
     assert {:ok, test_matches} = User.take_matched_names(holder.id, %{limit: 10, offset: 2})
     assert length(test_matches) == 0
+
+    # returns all items if offset and limit == -1
+    assert {:ok, test_matches} = User.take_matched_names(holder.id, %{limit: -1, offset: -1})
+    assert length(test_matches) == 2
   end
 
   test "remove all viewed names of specific user", context do
