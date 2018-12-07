@@ -4,11 +4,19 @@
 # els files
 .elixir_ls
 
-# App artifacts
+# Elixir dev stuff
+.hex
+.mix
+rel
 /_build
 /db
 /deps
 /*.ez
+.deliver
+
+# Other
+.vscode
+.bash_history
 
 # Generated on crash by the VM
 erl_crash.dump

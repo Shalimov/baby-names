@@ -15,7 +15,13 @@ use Mix.Config
 # which you typically run after static files are built.
 config :baby_names, BabyNamesWeb.Endpoint,
   load_from_system_env: true,
-  url: [host: "example.com", port: 80],
+  url: [host: System.get_env("API_HOST"), port: 443],
+  https: [
+    :inet6,
+    port: 443,
+    keyfile: System.get_env("SSL_KEYFILE_PATH"),
+    certfile: System.get_env("SSL_CERTFILE_PATH")
+  ],
   cache_static_manifest: "priv/static/cache_manifest.json"
 
 # Do not print debug messages in production

@@ -4,7 +4,7 @@ defmodule BabyNames.Mixfile do
   def project do
     [
       app: :baby_names,
-      version: "0.0.1",
+      version: "1.0.0",
       elixir: "~> 1.4",
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: [:phoenix, :gettext] ++ Mix.compilers(),
@@ -40,7 +40,8 @@ defmodule BabyNames.Mixfile do
       {:gettext, "~> 0.11"},
       {:cowboy, "~> 1.0"},
       {:absinthe, "~> 1.4"},
-      {:absinthe_plug, "~> 1.4"}
+      {:absinthe_plug, "~> 1.4"},
+      {:distillery, "~> 2.0"}
     ]
   end
 

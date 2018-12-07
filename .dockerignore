@@ -1,0 +1,18 @@
+# OS Related Files
+.DS_Store
+
+# Elixir Optional Files
+_build/
+.elixir_ls
+deps/
+test/
+rel/
+README*
+
+# Deployment Files
+Dockerfile
+Makefile
+
+# Other
+.git/
+.gitignore
