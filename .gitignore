@@ -4,10 +4,15 @@
 # els files
 .elixir_ls
 
+# release related stuff
+rel/*
+!rel/commands
+!rel/vm.args
+!rel/config.exs
+
 # Elixir dev stuff
 .hex
 .mix
-rel
 /_build
 /db
 /deps
@@ -15,6 +20,8 @@ rel
 .deliver
 
 # Other
+.viminfo
+.erlang.cookie
 .vscode
 .bash_history
 

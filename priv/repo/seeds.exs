@@ -3,8 +3,7 @@ alias BabyNames.Repo
 alias BabyNames.Repo.NameDescription
 
 name_descriptions =
-  BabyNamesWeb.Endpoint.config(:otp_app)
-  |> :code.priv_dir()
+  :code.priv_dir(:baby_names)
   |> Path.join("repo/initial_data/names.json")
   |> File.read!()
   |> Poison.decode!()
