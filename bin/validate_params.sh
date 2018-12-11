@@ -18,11 +18,6 @@ if [ -z "$RHOST" ]; then
   exit 1
 fi
 
-if [ -z "$PORT" ]; then
-  log_error "PORT should be provided"
-  exit 1
-fi
-
 if [ -z "$DBHOST" ]; then
   log_error "Remote Database Host should be provided"
   exit 1

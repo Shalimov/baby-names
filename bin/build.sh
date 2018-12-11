@@ -20,8 +20,18 @@ mix deps.get
 # Run an explicit clean to remove any build artifacts from the host
 mix do clean, compile --force
 # Build the release
-mix release
-# Copy tarball to output
-cp "_build/prod/rel/$APP_NAME/releases/$APP_VSN/$APP_NAME.tar.gz" rel/artifacts/"$APP_NAME-$APP_VSN.tar.gz"
+# And Copy tarball to output
+# TODO: Refactoring
+if [ "$UPGRADE" = "true" ]; then
+  echo "--- UPGRADE ---"
+  mix release --upgrade
+  mkdir -p /opt/build/rel/artifacts/$APP_VSN
+
+  cp "_build/prod/rel/$APP_NAME/releases/$APP_VSN/$APP_NAME.tar.gz" rel/artifacts/$APP_VSN/"$APP_NAME.tar.gz"
+else
+  mix release
+  
+  cp "_build/prod/rel/$APP_NAME/releases/$APP_VSN/$APP_NAME.tar.gz" rel/artifacts/"$APP_NAME.tar.gz"
+fi
 
 exit 0

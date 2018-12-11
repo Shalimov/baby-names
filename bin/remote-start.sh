@@ -5,12 +5,11 @@ set -e
 . $PWD/bin/common.sh --source-only
 
 REMOTE_CMD="
+export API_HOST=$RHOST;
 export DB_HOST=$DBHOST;
 export PORT=$PORT;
-echo \"PORT: \$PORT | DH: \$DB_HOST\";
-/opt/$APP_NAME_VSN/bin/$APP_NAME migrate &&\
-/opt/$APP_NAME_VSN/bin/$APP_NAME seeds &&\
-/opt/$APP_NAME_VSN/bin/$APP_NAME start;
+/opt/$APP_NAME/bin/$APP_NAME seed &&\
+/opt/$APP_NAME/bin/$APP_NAME start;
 "
 
 log_success "Begin: Start remotely app in background"

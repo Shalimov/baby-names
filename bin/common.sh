@@ -17,10 +17,16 @@ log_info() {
 APP_NAME="$(grep 'app:' mix.exs | sed -e 's/\[//g' -e 's/ //g' -e 's/app://' -e 's/[:,]//g')"
 APP_VSN="$(grep 'version:' mix.exs | cut -d '"' -f2)"
 APP_NAME_VSN="$APP_NAME-$APP_VSN"
-ARTIFACT="$APP_NAME_VSN.tar.gz"
+ARTIFACT="$APP_NAME.tar.gz"
 
 # Set default user
 if [ -z "$RUSER" ]; then
 : "${RUSER:=root}"
 log_info "RUSER is not set, using \"root\" by default"
+fi
+
+# Set default user
+if [ -z "$PORT" ]; then
+: "${PORT:=80}"
+log_info "PORT is not set, using \"80\" by default"
 fi
